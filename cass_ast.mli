@@ -23,18 +23,3 @@ type t =
   | Ant of Loc.t * string
 
 val meta_t : Ast.loc -> t -> Ast.expr
-
-module Comma : sig
-  val t_of_list : t list -> t
-  val list_of_t : t -> t list -> t list
-end
-
-module Semi : sig
-  val t_of_list : t list -> t
-  val list_of_t : t -> t list -> t list
-end
-
-module Seq : sig
-  val t_of_list : t list -> t
-  val list_of_t : t -> t list -> t list
-end

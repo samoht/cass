@@ -19,11 +19,11 @@ object
           let n, c = destruct_aq s in
           let e = AQ.parse_expr _loc c in
           begin match n with
-            | "int" -> <:expr< Cass_ast.Number (float_of_int $e$) >> (* e is an int *)
-            | "flo" -> <:expr< Cass_ast.Numner $e$ >> (* e is a float *)
-            | "str" -> <:expr< Cass_ast.String $e$ >> (* e is a string *)
-            | "list" -> <:expr< Cass_ast.Comma.t_of_list $e$ >> 
-            | "alist" -> <:expr< Cass_ast.Semi.t_of_list (List.map (fun (str,elt) -> Cass_ast.Colon (str, elt)) $e$) >> 
+            | "int" -> <:expr< Css.Number (float_of_int $e$) >> (* e is an int *)
+            | "flo" -> <:expr< Css.Numner $e$ >> (* e is a float *)
+            | "str" -> <:expr< Css.String $e$ >> (* e is a string *)
+            | "list" -> <:expr< Css.Comma.t_of_list $e$ >> 
+            | "alist" -> <:expr< Css.Semi.t_of_list (List.map (fun (str,elt) -> Css.Colon (str, elt)) $e$) >> 
             | _ -> e
           end
       | e -> super#expr e
@@ -48,5 +48,4 @@ let expand_str_item loc _ s =
 ;;
 
 Q.add "css" Q.DynAst.expr_tag expand_expr;
-Q.add "css" Q.DynAst.str_item_tag expand_str_item;
-Q.default := "css"
+Q.add "css" Q.DynAst.str_item_tag expand_str_item

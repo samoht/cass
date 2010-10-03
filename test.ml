@@ -2,7 +2,7 @@ let color1 = <:css< #fff >>;;
 let color2 = <:css< #e3e3e3 >>;;
 
 let props = <:css<
-  background: $list:[color1]$;
+  background: $list:[color1; color2]$;
   border-top: 15px solid $color2$;
 >>;;
 
@@ -12,6 +12,6 @@ body { $props$;
 }
 >>
 
-let s = Cass_printer.to_string c2
+let s = Css.to_string c2
 
 let _ = Printf.printf "%s\n%!" s 
