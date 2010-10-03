@@ -1,0 +1,5 @@
+<cass_ast.ml*>: pkg_camlp4
+<cass_parser.ml*>: syntax_camlp4o,pkg_camlp4.extend
+<cass_quotations.ml*>: syntax_camlp4o,pkg_camlp4.quotations
+<cass_ast.ml*>: syntax_camlp4o,pkg_camlp4.quotations
+<test.ml>: syntax_camlp4o,pkg_cass
