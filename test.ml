@@ -15,3 +15,7 @@ body { $props$;
 let s = Css.to_string c2
 
 let _ = Printf.printf "%s\n%!" s 
+
+(*
+let broken = <:css< >>
+*)
