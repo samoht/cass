@@ -17,30 +17,17 @@
 open Format
 open Cass_ast
 
+(* XXX: improve the formatter *)
 let rec t_ ppf = function
   | String s  -> fprintf ppf "%S" s
-  | Number n  -> fprintf ppf "%g" n
-  | Dim (f,d) -> fprintf ppf "%g%S" f d
-
-  | Percent f    -> fprintf ppf "%g%%" f
-  | Div (t1, t2) -> fprintf ppf "%a/@;<1 2>%a" t t1 t t2
-
-  | Colon        -> fprintf ppf ":"
-  | Prop (s, t') -> fprintf ppf "@[<h>%S@ :@ %a@]" s t t'
-
-  | Bracket t'     -> fprintf ppf "@[<hv>(@;<1 2>%a@ )@]" t t'
-  | Square t'      -> fprintf ppf "@[<hv>[@;<1 2>%a@ ]@]" t t'
-  | Curly (t1, t2) -> fprintf ppf "%a @[<hv>{@;<1 2>%a@ }@]" t t1 t t2
-
+  | Decl (s, t') -> fprintf ppf "%a { %a }" t s t t'
+  | Rule (s, t') -> fprintf ppf "%a : %a" t s t t'
   | Semi (t', Nil) -> t ppf t'
   | Semi (t1, t2) -> fprintf ppf "%a;@;<1 2>%a" t t1 t t2
-
   | Comma (t', Nil) -> t ppf t'
   | Comma (t1, t2) -> fprintf ppf "%a,@;<1 2>%a" t t1 t t2
-
   | Seq (t', Nil) -> t ppf t'
   | Seq (t1, t2) -> fprintf ppf "%a @;<1 2>%a" t t1 t t2
-
   | Nil -> ()
 
   | Ant (_, s) -> fprintf ppf "$%s$" s

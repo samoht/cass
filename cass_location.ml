@@ -14,4 +14,16 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
-val parse_cass_eoi : Camlp4.PreCast.Ast.Loc.t -> string -> Cass_ast.t
+open Camlp4.PreCast
+
+let current = ref Loc.ghost
+
+let set l = current := l
+
+let get () = !current
+
+let shift n =
+  current := Loc.shift n !current
+
+let newline () =
+  current := Loc.move_line 1 !current

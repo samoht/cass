@@ -20,11 +20,14 @@ module Q = Syntax.Quotation
 module AQ = Syntax.AntiquotSyntax
 
 let destruct_aq s =
-  let pos = String.index s ':' in
-  let len = String.length s in
-  let name = String.sub s 0 pos
-  and code = String.sub s (pos + 1) (len - pos - 1) in
-  name, code
+  try
+    let pos = String.index s ':' in
+    let len = String.length s in
+    let name = String.sub s 0 pos
+    and code = String.sub s (pos + 1) (len - pos - 1) in
+    name, code
+  with Not_found ->
+    "", s
 
 let aq_expander =
 object
@@ -45,23 +48,35 @@ object
       | e -> super#expr e
 end
 
-let parse_quot_string loc s =
-  let q = !Camlp4_config.antiquotations in
-  Camlp4_config.antiquotations := true;
-  let res = Cass_parser.parse_cass_eoi loc s in
-  Camlp4_config.antiquotations := q;
+let parse_quot_string fn loc s =
+  Cass_location.set loc;
+  let res = fn Cass_lexer.token (Lexing.from_string s) in
+  Cass_location.set Loc.ghost;
   res
 
-let expand_expr loc _ s =
-  let ast = parse_quot_string loc s in
+let expand_expr fn loc _ s =
+  let ast = parse_quot_string fn loc s in
   let meta_ast = Cass_ast.meta_t loc ast in
   aq_expander#expr meta_ast
 
-let expand_str_item loc _ s =
-  let exp_ast = expand_expr loc None s in
+let expand_str_item fn loc _ s =
+  let exp_ast = expand_expr fn loc None s in
   <:str_item@loc< $exp:exp_ast$ >>
 
 ;;
 
-Q.add "css" Q.DynAst.expr_tag expand_expr;
-Q.add "css" Q.DynAst.str_item_tag expand_str_item
+Q.add "css" Q.DynAst.expr_tag (expand_expr Cass_parser.decl_list);
+Q.add "css" Q.DynAst.str_item_tag (expand_str_item Cass_parser.decl_list);
+
+Q.add "css_rule" Q.DynAst.expr_tag (expand_expr Cass_parser.rule_list);
+Q.add "css_rule" Q.DynAst.str_item_tag (expand_str_item Cass_parser.rule_list);
+
+Q.add "css_seq" Q.DynAst.expr_tag (expand_expr Cass_parser.elt_seq);
+Q.add "css_seq" Q.DynAst.str_item_tag (expand_str_item Cass_parser.elt_seq);
+
+Q.add "css_list" Q.DynAst.expr_tag (expand_expr Cass_parser.elt_list);
+Q.add "css_list" Q.DynAst.str_item_tag (expand_str_item Cass_parser.elt_list);
+
+Q.add "css_elt" Q.DynAst.expr_tag (expand_expr Cass_parser.elt);
+Q.add "css_elt" Q.DynAst.str_item_tag (expand_str_item Cass_parser.elt)
+

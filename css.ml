@@ -16,19 +16,8 @@
 
 type t =
   | String of string
-  | Number of float
-  | Dim of float * string
-
-  | Percent of float
-  | Div of t * t
-
-  | Colon
-  | Prop of string * t
-
-  | Bracket of t
-  | Square of t
-  | Curly of t * t
-
+  | Decl of t * t
+  | Rule of t * t
   | Semi of t * t
   | Comma of t * t
   | Seq of t * t
@@ -76,20 +65,11 @@ end
 open Printf
 open Format
 
+(* XXX: fix the formatter *)
 let rec t ppf = function
   | String s  -> fprintf ppf "%s" s
-  | Number n  -> fprintf ppf "%g" n
-  | Dim (f,d) -> fprintf ppf "%g%s" f d
-
-  | Percent f    -> fprintf ppf "%g%%" f
-  | Div (t1, t2) -> fprintf ppf "%a/@;<1 2>%a" t t1 t t2
-
-  | Colon        -> fprintf ppf ":"
-  | Prop (s, t') -> fprintf ppf "@[<h>%s@ :@ %a@]" s t t'
-
-  | Bracket t'     -> fprintf ppf "@[<hv>(@;<1 2>%a@ )@]" t t'
-  | Square t'      -> fprintf ppf "@[<hv>[@;<1 2>%a@ ]@]" t t'
-  | Curly (t1, t2) -> fprintf ppf "%a @[<hv>{@;<1 2>%a@ }@]" t t1 t t2
+  | Decl (s, t') -> fprintf ppf "%a { %a }" t s t t'
+  | Rule (s, t') -> fprintf ppf "%a: %a" t s t t'
 
   | Semi (t', Nil) -> t ppf t'
   | Semi (t1, t2) -> fprintf ppf "%a;@;<1 2>%a" t t1 t t2

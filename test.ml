@@ -1,7 +1,7 @@
-let color1 = <:css< #fff >>;;
-let color2 = <:css< #e3e3e3 >>;;
+let color1 = <:css_elt< #fff >>;;
+let color2 = <:css_elt< #e3e3e3 >>;;
 
-let props = <:css<
+let props = <:css_rule<
   background: $list:[color1; color2]$;
   border-top: 15px solid $color2$;
 >>;;
