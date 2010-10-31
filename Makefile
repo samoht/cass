@@ -5,7 +5,7 @@ cass_parser.mli cass_parser.cmi cass_parser.cmx \
 cass_printer.mli cass_printer.cmi cass_printer.cmx \
 cass_quotations.cmi cass_quotations.cmx \
 cass_top.cmo \
-css.cmx css.cmo
+css.cmx css.cmo css.cmi
 
 BFILES=$(addprefix _build/,$(FILES))
 
