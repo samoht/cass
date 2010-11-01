@@ -55,6 +55,12 @@
    | DOLLAR { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
+ one_colon:
+   | STRING COLON STRING { debug "STRING(%s:%s)" $1 $3; String (Printf.sprintf "%s:%s" $1 $3) }
+   | STRING              { debug "STRING(%s)" $1; String $1 }
+   | DOLLAR              { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+ ;
+
  comma:
    | one COMMA comma { debug "COMMA"; Comma ($1, $3) }
    | one             { $1 }
@@ -63,6 +69,11 @@
  seq:
    | one seq { debug "SEQ"; Seq ($1, $2) }
    | one     { $1 }
+ ;
+
+ seq_colon:
+   | one_colon seq_colon { debug "SEQ"; Seq ($1, $2) }
+   | one_colon           { $1 }
  ;
 
  seq_or_comma:
@@ -85,17 +96,18 @@
  ;
 
  decl:
-   | one OPEN rules CLOSE             { debug "COLON"; Decl ($1, $3) }
-   | one OPEN NEWLINE rules CLOSE     { debug "COLON"; Decl ($1, $4) }
-   | one seq OPEN rules CLOSE         { debug "COLON"; Decl (Seq($1, $2), $4) }
-   | one seq OPEN NEWLINE rules CLOSE { debug "COLON"; Decl (Seq($1, $2), $5) }
-   | DOLLAR                           { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+   | one_colon OPEN rules CLOSE                   { debug "COLON"; Decl ($1, $3) }
+   | one_colon OPEN NEWLINE rules CLOSE           { debug "COLON"; Decl ($1, $4) }
+   | one_colon seq_colon OPEN rules CLOSE         { debug "COLON"; Decl (Seq($1, $2), $4) }
+   | one_colon seq_colon OPEN NEWLINE rules CLOSE { debug "COLON"; Decl (Seq($1, $2), $5) }
+   | DOLLAR                                       { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
  decls:
-   | decl NEWLINE decls { debug "SEQ"; Seq ($1, $3) }
-   | decl NEWLINE       { $1 }
-   | decl               { $1 }
+   | decl NEWLINE NEWLINE decls { debug "SEQ"; Seq ($1, $4) }
+   | decl NEWLINE decls         { debug "SEQ"; Seq ($1, $3) }
+   | decl NEWLINE               { $1 }
+   | decl                       { $1 }
  ;
 
  all:
