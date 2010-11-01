@@ -37,7 +37,7 @@ let all = [^ ' ' '\t' '\r' '\n' ':' ';' ',' '{' '}' '$' '"' '\'']
 (* very very simple HTML lexer *)
 rule token = parse
   | [' ' '\t']* { update lexbuf; token lexbuf }
-  | '\n'        { newline lexbuf; token lexbuf }
+  | '\n'        { debug "NL"; newline lexbuf; NEWLINE }
   | '{'         { debug "{"; update lexbuf; OPEN  }
   | '}'         { debug "}"; CLOSE }
   | ':'         { debug ":"; update lexbuf; COLON }

@@ -33,12 +33,13 @@
       Printf.kprintf (fun s -> ()) fmt
 %}
 
-%token COMMA SEMI OPEN CLOSE COLON EOF
+%token COMMA SEMI OPEN CLOSE COLON EOF NEWLINE
 %token <string> STRING DOLLAR
 
 %start main
 %type <Cass_ast.t> main
 
+%left NEWLINE
 %left COMMA
 %left SEMI
 %left OPEN
@@ -77,21 +78,28 @@
  ;
 
  rules:
-   | rule rules { debug "SEMI"; Seq($1, $2) }
-   | rule       { $1 }
+   | rule NEWLINE rules { debug "SEMI"; Seq($1, $3) }
+   | rule rules         { debug "SEMI"; Seq($1, $2) }
+   | rule NEWLINE       { $1 }
+   | rule               { $1 }
  ;
 
  decl:
-   | one OPEN rules CLOSE { debug "COLON"; Decl ($1, $3) }
-   | DOLLAR               { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+   | one OPEN rules CLOSE             { debug "COLON"; Decl ($1, $3) }
+   | one OPEN NEWLINE rules CLOSE     { debug "COLON"; Decl ($1, $4) }
+   | one seq OPEN rules CLOSE         { debug "COLON"; Decl (Seq($1, $2), $4) }
+   | one seq OPEN NEWLINE rules CLOSE { debug "COLON"; Decl (Seq($1, $2), $5) }
+   | DOLLAR                           { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
  decls:
-   | decl SEMI decls { debug "SEQ"; Seq ($1, $3) }
-   | decl SEMI       { $1 }
+   | decl NEWLINE decls { debug "SEQ"; Seq ($1, $3) }
+   | decl NEWLINE       { $1 }
+   | decl               { $1 }
  ;
 
  all:
+   | NEWLINE all  { $2 }
    | rules        { $1 }
    | seq_or_comma { $1 }
    | decls        { $1 }
