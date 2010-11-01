@@ -65,18 +65,5 @@ let expand_str_item fn loc _ s =
 
 ;;
 
-Q.add "css" Q.DynAst.expr_tag (expand_expr Cass_parser.decl_list);
-Q.add "css" Q.DynAst.str_item_tag (expand_str_item Cass_parser.decl_list);
-
-Q.add "css_rule" Q.DynAst.expr_tag (expand_expr Cass_parser.rule_list);
-Q.add "css_rule" Q.DynAst.str_item_tag (expand_str_item Cass_parser.rule_list);
-
-Q.add "css_seq" Q.DynAst.expr_tag (expand_expr Cass_parser.elt_seq);
-Q.add "css_seq" Q.DynAst.str_item_tag (expand_str_item Cass_parser.elt_seq);
-
-Q.add "css_list" Q.DynAst.expr_tag (expand_expr Cass_parser.elt_list);
-Q.add "css_list" Q.DynAst.str_item_tag (expand_str_item Cass_parser.elt_list);
-
-Q.add "css_elt" Q.DynAst.expr_tag (expand_expr Cass_parser.elt);
-Q.add "css_elt" Q.DynAst.str_item_tag (expand_str_item Cass_parser.elt)
-
+Q.add "css" Q.DynAst.expr_tag (expand_expr Cass_parser.main);
+Q.add "css" Q.DynAst.str_item_tag (expand_str_item Cass_parser.main)

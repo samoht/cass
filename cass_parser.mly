@@ -36,48 +36,68 @@
 %token COMMA SEMI OPEN CLOSE COLON EOF
 %token <string> STRING DOLLAR
 
-%start decl_list rule_list elt_seq elt_list elt
-%type <Cass_ast.t> decl_list rule_list elt_seq elt_list elt
+%start main
+%type <Cass_ast.t> main
 
 %left COMMA
 %left SEMI
-%left OPEN CLOSE
+%left OPEN
+%left CLOSE
 %left COLON
-%left STRING DOLLAR
+%left STRING
+%left DOLLAR
 
 %%
 
-elt:
+ one:
    | STRING { debug "STRING(%s)" $1; String $1 }
    | DOLLAR { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+ ;
 
-elt_list:
-   | elt COMMA elt_list { debug "COMMA"; Comma ($1, $3) }
-   | elt elt_list       { debug "lSEQ"; Seq ($1, $2) }
-   | elt                { $1 }
-;
+ comma:
+   | one COMMA comma { debug "COMMA"; Comma ($1, $3) }
+   | one             { $1 }
+ ;
 
-elt_seq:
-   | elt elt_seq { debug "SEQ"; Seq ($1, $2) }
-   | elt         { $1 }
-;
+ seq:
+   | one seq { debug "SEQ"; Seq ($1, $2) }
+   | one     { $1 }
+ ;
 
-rule:
-   | elt COLON elt_list { debug "COLON"; Rule ($1, $3) }
-   | DOLLAR             { debug "rDOLLAR"; Ant (Cass_location.get (), $1) }
-;
+ seq_or_comma:
+   | one COMMA comma  { debug "COMMA*"; Comma ($1, $3) }
+   | one one seq      { debug "SEQ*";   Seq ($1, Seq($2, $3)) }
+   | one one          { debug "SEQ+"; Seq ($1, $2) }
+   | one              { $1 }
+ ;
 
-rule_list:
-   | rule SEMI rule_list { debug "RULE;..."; Semi ($1, $3) }
-   | rule SEMI           { debug "RULE;"; $1 }
-;
+ rule:
+   | one COLON seq_or_comma SEMI { debug "COLON"; Rule ($1, $3) }
+   | DOLLAR SEMI                 { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+ ;
 
-decl:
-   | elt_seq OPEN rule_list CLOSE { debug "... { ... }"; Decl ($1, $3) }
-;
+ rules:
+   | rule rules { debug "SEMI"; Semi($1, $2) }
+   | rule       { $1 }
+ ;
 
-decl_list:
-   | decl EOF       { debug "DECL"; newline (); $1 }
-   | decl decl_list { Seq ($1, $2) }
-;
+ decl:
+   | one OPEN rules CLOSE { debug "COLON"; Decl ($1, $3) }
+   | DOLLAR               { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+ ;
+
+ decls:
+   | decl SEMI decls { debug "SEQ"; Seq ($1, $3) }
+   | decl SEMI       { $1 }
+ ;
+
+ all:
+   | rules        { $1 }
+   | seq_or_comma { $1 }
+   | decls        { $1 }
+ ;
+
+ main:
+   | all EOF { debug "DECL"; newline (); $1 }
+ ;
 
