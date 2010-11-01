@@ -18,7 +18,6 @@ type t =
   | String of string
   | Decl of t * t
   | Rule of t * t
-  | Semi of t * t
   | Comma of t * t
   | Seq of t * t
   | Nil
@@ -33,19 +32,6 @@ module Comma = struct
     match x with
     | Nil -> acc
     | Comma (e1, e2) -> list_of_t e1 (list_of_t e2 acc)
-    | e -> e :: acc
-end
-
-module Semi = struct
-  let rec t_of_list = function
-    | [] -> Nil
-    | [e] -> e
-    | e::es -> Semi (e, t_of_list es)
-
-  let rec list_of_t x acc =
-    match x with
-    | Nil -> acc
-    | Semi (e1, e2) -> list_of_t e1 (list_of_t e2 acc)
     | e -> e :: acc
 end
 
@@ -67,22 +53,19 @@ open Format
 
 (* XXX: fix the formatter *)
 let rec t ppf = function
-  | String s  -> fprintf ppf "%s" s
-  | Decl (s, t') -> fprintf ppf "%a { %a }" t s t t'
-  | Rule (s, t') -> fprintf ppf "%a: %a" t s t t'
+  | String s       -> fprintf ppf "%s" s
+  | Decl (t1, t2)  -> fprintf ppf "%a {\n%a}" t t1 t t2
+  | Rule (t1, t2)  -> fprintf ppf "\t%a: %a;\n" t t1 t t2
 
-  | Semi (t', Nil) -> t ppf t'
-  | Semi (t1, t2) -> fprintf ppf "%a;@;<1 2>%a" t t1 t t2
+  | Comma (t1, Nil) -> t ppf t1
+  | Comma (t1, t2)  -> fprintf ppf "%a, %a" t t1 t t2
 
-  | Comma (t', Nil) -> t ppf t'
-  | Comma (t1, t2) -> fprintf ppf "%a,@;<1 2>%a" t t1 t t2
-
-  | Seq (t', Nil) -> t ppf t'
-  | Seq (t1, t2) -> fprintf ppf "%a @;<1 2>%a" t t1 t t2
+  | Seq (t1, Nil)   -> t ppf t1
+  | Seq (t1, t2)    -> fprintf ppf "%a %a" t t1 t t2
 
   | Nil -> ()
 
-let to_string t' =
-  t str_formatter t';
+let to_string t1 =
+  t str_formatter t1;
   flush_str_formatter ()
 

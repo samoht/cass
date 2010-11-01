@@ -66,7 +66,7 @@
 
  seq_or_comma:
    | one COMMA comma  { debug "COMMA*"; Comma ($1, $3) }
-   | one one seq      { debug "SEQ*";   Seq ($1, Seq($2, $3)) }
+   | one one seq      { debug "SEQ*"; Seq ($1, Seq($2, $3)) }
    | one one          { debug "SEQ+"; Seq ($1, $2) }
    | one              { $1 }
  ;
@@ -77,7 +77,7 @@
  ;
 
  rules:
-   | rule rules { debug "SEMI"; Semi($1, $2) }
+   | rule rules { debug "SEMI"; Seq($1, $2) }
    | rule       { $1 }
  ;
 

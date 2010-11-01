@@ -18,22 +18,18 @@ open Format
 open Cass_ast
 
 (* XXX: improve the formatter *)
-let rec t_ ppf = function
+let rec t ppf = function
   | String s  -> fprintf ppf "%S" s
-  | Decl (s, t') -> fprintf ppf "%a { %a }" t s t t'
-  | Rule (s, t') -> fprintf ppf "%a : %a" t s t t'
-  | Semi (t', Nil) -> t ppf t'
-  | Semi (t1, t2) -> fprintf ppf "%a;@;<1 2>%a" t t1 t t2
-  | Comma (t', Nil) -> t ppf t'
-  | Comma (t1, t2) -> fprintf ppf "%a,@;<1 2>%a" t t1 t t2
-  | Seq (t', Nil) -> t ppf t'
-  | Seq (t1, t2) -> fprintf ppf "%a @;<1 2>%a" t t1 t t2
+  | Decl (t1, t2) -> fprintf ppf "%a { %a }" t t1 t t2
+  | Rule (t1, t2) -> fprintf ppf "%a : %a;\n" t t1 t t2
+  | Comma (t1, Nil) -> t ppf t1
+  | Comma (t1, t2) -> fprintf ppf "%a, %a" t t1 t t2
+  | Seq (t1, Nil) -> t ppf t1
+  | Seq (t1, t2) -> fprintf ppf "%a %a" t t1 t t2
   | Nil -> ()
 
   | Ant (_, s) -> fprintf ppf "$%s$" s
 
-and t ppf t = t_ ppf t (*t_of_list (list_of_t t [])*)
-
-let to_string t' =
-  t str_formatter t';
+let to_string t1 =
+  t str_formatter t1;
   flush_str_formatter ()
