@@ -22,6 +22,7 @@ let rec t ppf = function
   | String s  -> fprintf ppf "%S" s
   | Decl (t1, t2) -> fprintf ppf "%a { %a }" t t1 t t2
   | Rule (t1, t2) -> fprintf ppf "%a : %a;\n" t t1 t t2
+  | Fun (t1, t2) -> fprintf ppf "%a(%a)" t t1 t t2
   | Comma (t1, Nil) -> t ppf t1
   | Comma (t1, t2) -> fprintf ppf "%a, %a" t t1 t t2
   | Seq (t1, Nil) -> t ppf t1

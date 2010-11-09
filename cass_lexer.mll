@@ -40,6 +40,8 @@ rule token = parse
   | '\n'        { newline lexbuf; token lexbuf }
   | '{'         { debug "{"; update lexbuf; OPEN  }
   | '}'         { debug "}"; CLOSE }
+  | '('         { debug "("; LEFT }
+  | ')'         { debug ")"; RIGHT }
   | ','         { debug ","; update lexbuf; COMMA }
   | ';'         { debug ";"; update lexbuf; SEMI }
   | '$'         { debug "$*$"; update lexbuf; DOLLAR (dollar lexbuf) }

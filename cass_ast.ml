@@ -20,6 +20,7 @@ type t =
   | String of string
   | Decl of t * t
   | Rule of t * t
+  | Fun of t * t
   | Comma of t * t
   | Seq of t * t
   | Nil
@@ -30,6 +31,7 @@ let rec meta_t _loc = function
   | String s    -> <:expr< Css.String $`str:s$ >>
   | Decl (a,b)  -> <:expr< Css.Decl ($meta_t _loc a$, $meta_t _loc b$) >>
   | Rule (a,b)  -> <:expr< Css.Rule ($meta_t _loc a$, $meta_t _loc b$) >>
+  | Fun (a,b)   -> <:expr< Css.Fun ($meta_t _loc a$, $meta_t _loc b$) >>
   | Comma (a,b) -> <:expr< Css.Comma ($meta_t _loc a$, $meta_t _loc b$) >>
   | Seq (a,b)   -> <:expr< Css.Seq ($meta_t _loc a$, $meta_t _loc b$) >> 
   | Nil         -> <:expr< Css.Nil >>

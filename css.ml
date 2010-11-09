@@ -18,6 +18,7 @@ type t =
   | String of string
   | Decl of t * t
   | Rule of t * t
+  | Fun of t * t
   | Comma of t * t
   | Seq of t * t
   | Nil
@@ -56,6 +57,7 @@ let rec t ppf = function
   | String s       -> fprintf ppf "%s" s
   | Decl (t1, t2)  -> fprintf ppf "%a {\n%a}\n" t t1 t t2
   | Rule (t1, t2)  -> fprintf ppf "\t%a: %a;\n" t t1 t t2
+  | Fun (t1, t2)   -> fprintf ppf "%a(%a)" t t1 t t2
 
   | Comma (t1, Nil) -> t ppf t1
   | Comma (t1, t2)  -> fprintf ppf "%a, %a" t t1 t t2
@@ -69,3 +71,31 @@ let to_string t1 =
   t str_formatter t1;
   flush_str_formatter ()
 
+(* From http://www.webdesignerwall.com/tutorials/cross-browser-css-gradient/ *)
+let gradient ~default ~low ~high =
+  let rule p k = Rule (String p, k) in
+  let rules = [
+    rule "background" default; (* for non-css3 browsers *)
+    rule "filter"
+      (Fun
+         (String "progid:DXImageTransform.Microsoft.gradient",
+          Comma( Seq(String "startColorstr=", high),
+                 Seq(String "endColorstr=", low)))); (* for IE *)
+    
+    rule "background"
+      (Fun (String "-webkit-gradient",
+            Comma.t_of_list
+              [ String "linear";
+                Seq (String "left", String "top");
+                Seq (String "left", String "bottom");
+                Fun (String "from", high);
+                Fun (String "to", low)])); (* for webkit browsers *)
+
+    rule "background"
+      (Fun (String "-moz-linear-gradient",
+            Comma.t_of_list
+              [ String "top";
+                high;
+                low ])); (* for firefox 3.6+ *)
+  ] in
+  Seq.t_of_list rules

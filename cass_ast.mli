@@ -20,6 +20,7 @@ type t =
   | String of string
   | Decl of t * t
   | Rule of t * t
+  | Fun of t * t
   | Comma of t * t
   | Seq of t * t
   | Nil
