@@ -41,7 +41,7 @@ object
             | "int" -> <:expr< Css.Number (float_of_int $e$) >> (* e is an int *)
             | "flo" -> <:expr< Css.Numner $e$ >> (* e is a float *)
             | "str" -> <:expr< Css.String $e$ >> (* e is a string *)
-            | "list" -> <:expr< Css.Comma.t_of_list $e$ >> 
+            | "list" -> <:expr< Css.Seq.t_of_list $e$ >> 
             | "alist" -> <:expr< Css.Semi.t_of_list (List.map (fun (str,elt) -> Css.Colon (str, elt)) $e$) >> 
             | _ -> e
           end

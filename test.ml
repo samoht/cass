@@ -9,7 +9,7 @@ let props = <:css<
 let c2 = <:css<
 body { $props$;
         font: "helvetica neue", "helvetica", "arial", sans-serif;
-};
+}
 >>
 
 let s = Css.to_string c2

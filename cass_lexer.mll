@@ -32,22 +32,25 @@
     Cass_location.newline ()
 }
 
-let all = [^ ' ' '\t' '\r' '\n' ':' ';' ',' '{' '}' '$' '"' '\'']
+let all = [^ ' ' '\t' '\r' '\n' ';' ',' '{' '}' '$' '"' '\'']
 
 (* very very simple HTML lexer *)
 rule token = parse
   | [' ' '\t']* { update lexbuf; token lexbuf }
-  | '\n'        { debug "NL"; newline lexbuf; NEWLINE }
+  | '\n'        { newline lexbuf; token lexbuf }
   | '{'         { debug "{"; update lexbuf; OPEN  }
   | '}'         { debug "}"; CLOSE }
-  | ':'         { debug ":"; update lexbuf; COLON }
   | ','         { debug ","; update lexbuf; COMMA }
   | ';'         { debug ";"; update lexbuf; SEMI }
   | '$'         { debug "$*$"; update lexbuf; DOLLAR (dollar lexbuf) }
   | '"'         { debug "\"*\""; update lexbuf; STRING (Printf.sprintf "\"%s\"" (dquote lexbuf)) }
   | '\''        { debug "\'"; update lexbuf; STRING (Printf.sprintf "\"%s\"" (quote lexbuf)) }
   | eof         { debug "EOF"; update lexbuf; EOF }
-  | all*  as x  { debug "%s" x; update lexbuf; STRING x }
+  | all*  as x  { debug "%s" x; update lexbuf;
+                  if x.[String.length x - 1] = ':' then
+                    PROP (String.sub x 0 (String.length x - 1))
+                  else
+                    STRING x }
 
 and dollar = parse
   | ([^ '$']* as str) '$' { update lexbuf; str }

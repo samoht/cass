@@ -33,88 +33,60 @@
       Printf.kprintf (fun s -> ()) fmt
 %}
 
-%token COMMA SEMI OPEN CLOSE COLON EOF NEWLINE
-%token <string> STRING DOLLAR
+%token COMMA SEMI OPEN CLOSE EOF
+%token <string> STRING DOLLAR PROP
 
-%start main
-%type <Cass_ast.t> main
-
-%left NEWLINE
 %left COMMA
 %left SEMI
 %left OPEN
 %left CLOSE
-%left COLON
-%left STRING
+
 %left DOLLAR
+%left PROP
+%left STRING
+
+
+%start main
+%type <Cass_ast.t> main
 
 %%
 
- one:
-   | STRING { debug "STRING(%s)" $1; String $1 }
-   | DOLLAR { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+ expr:
+   | STRING expr { debug "SEQ"; Seq (String $1, $2) }
+   | DOLLAR expr { debug "DOLLAR(%s)-SEQ" $1; Seq (Ant (Cass_location.get (), $1), $2) }
+   | STRING      { debug "STRING(%s)" $1; String $1 }
+   | DOLLAR      { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
- one_colon:
-   | STRING COLON STRING { debug "STRING(%s:%s)" $1 $3; String (Printf.sprintf "%s:%s" $1 $3) }
-   | STRING              { debug "STRING(%s)" $1; String $1 }
-   | DOLLAR              { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
- ;
-
- comma:
-   | one COMMA comma { debug "COMMA"; Comma ($1, $3) }
-   | one             { $1 }
- ;
-
- seq:
-   | one seq { debug "SEQ"; Seq ($1, $2) }
-   | one     { $1 }
- ;
-
- seq_colon:
-   | one_colon seq_colon { debug "SEQ"; Seq ($1, $2) }
-   | one_colon           { $1 }
- ;
-
- seq_or_comma:
-   | one COMMA comma  { debug "COMMA*"; Comma ($1, $3) }
-   | one one seq      { debug "SEQ*"; Seq ($1, Seq($2, $3)) }
-   | one one          { debug "SEQ+"; Seq ($1, $2) }
-   | one              { $1 }
+ exprs:
+   | expr COMMA exprs { debug "COMMA"; Comma ($1, $3) }
+   | expr             { $1 }
  ;
 
  rule:
-   | one COLON seq_or_comma SEMI { debug "COLON"; Rule ($1, $3) }
-   | DOLLAR SEMI                 { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+   | PROP exprs SEMI { debug "COLON"; Rule (String $1, $2) }
+   | DOLLAR SEMI     { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
  rules:
-   | rule NEWLINE rules { debug "SEMI"; Seq($1, $3) }
    | rule rules         { debug "SEMI"; Seq($1, $2) }
-   | rule NEWLINE       { $1 }
    | rule               { $1 }
  ;
 
  decl:
-   | one_colon OPEN rules CLOSE                   { debug "COLON"; Decl ($1, $3) }
-   | one_colon OPEN NEWLINE rules CLOSE           { debug "COLON"; Decl ($1, $4) }
-   | one_colon seq_colon OPEN rules CLOSE         { debug "COLON"; Decl (Seq($1, $2), $4) }
-   | one_colon seq_colon OPEN NEWLINE rules CLOSE { debug "COLON"; Decl (Seq($1, $2), $5) }
-   | DOLLAR                                       { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+   | exprs OPEN rules CLOSE  { debug "COLON"; Decl ($1, $3) }
+   | DOLLAR                  { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
  decls:
-   | decl NEWLINE NEWLINE decls { debug "SEQ"; Seq ($1, $4) }
-   | decl NEWLINE decls         { debug "SEQ"; Seq ($1, $3) }
-   | decl NEWLINE               { $1 }
-   | decl                       { $1 }
+   | decl decls { debug "SEQ"; Seq ($1, $2) }
+   | decl       { $1 }
  ;
 
  all:
-   | NEWLINE all  { $2 }
-   | rules        { $1 }
-   | seq_or_comma { $1 }
-   | decls        { $1 }
+   | decls { $1 }
+   | rules { $1 }
+   | exprs { $1 }
  ;
 
  main:
