@@ -45,6 +45,7 @@ rule token = parse
   | '$'         { debug "$*$"; update lexbuf; DOLLAR (dollar lexbuf) }
   | '"'         { debug "\"*\""; update lexbuf; STRING (Printf.sprintf "\"%s\"" (dquote lexbuf)) }
   | '\''        { debug "\'"; update lexbuf; STRING (Printf.sprintf "\"%s\"" (quote lexbuf)) }
+  | "/*"        { comments lexbuf; token lexbuf }
   | eof         { debug "EOF"; update lexbuf; EOF }
   | all*  as x  { debug "%s" x; update lexbuf;
                   if x.[String.length x - 1] = ':' then
@@ -60,3 +61,7 @@ and dquote = parse
  
 and quote = parse
   | ([^ '\'']* as str) '\'' { update lexbuf; str }
+
+and comments = parse
+  | "*/" { () }
+  | _    { comments lexbuf }
