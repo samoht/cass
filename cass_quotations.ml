@@ -22,6 +22,8 @@ module AQ = Syntax.AntiquotSyntax
 let destruct_aq s =
   try
     let pos = String.index s ':' in
+    let space = String.index s ' ' in
+    if space < pos then raise Not_found;
     let len = String.length s in
     let name = String.sub s 0 pos
     and code = String.sub s (pos + 1) (len - pos - 1) in

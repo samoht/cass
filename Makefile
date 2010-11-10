@@ -12,7 +12,8 @@ BFILES=$(addprefix _build/,$(FILES))
 STUFF=$(shell ocamlfind query cass -r -format "-I %d %a" -predicates byte)
 
 all:
-	ocamlbuild cass.cma cass_top.cmo cass.cmxa css.cmo css.cmx
+	ocamlbuild cass.cma cass_top.cmo cass.cmxa
+	ocamlbuild -pp "camlp4orf cass.cma" css.cmo css.cmx
 
 install:
 	ocamlfind install cass META $(BFILES)
@@ -25,11 +26,12 @@ clean:
 	rm -rf test.exp test.cmo test.cmx test.cmi test.o
 
 test:
-	ocamlbuild test.byte
-	./test.byte
+	ocamlbuild -pp "camlp4orf cass.cma" test.byte --
 
-test.exp: test.ml
-	camlp4of _build/cass.cma test.ml -printer o > test.exp
+.PHONY: text_exp
+test_exp: test.ml
+	camlp4of _build/cass.cma test.ml -printer o > test_exp.ml
+	ocamlc -annot -I _build/ css.cmo test_exp.ml -o test_exp
 
 debug: all
 	camlp4of _build/cass.cma test.ml

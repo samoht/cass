@@ -32,31 +32,32 @@
     Cass_location.newline ()
 }
 
-let all = [^ ' ' '\t' '\r' '\n' ';' ',' '{' '}' '$' '"' '\'']
+let all = [^ ' ' '\t' '\r' '\n' '{' '}' '(' ')' ';' ',' '$' '"' '\'' '=']
 
 (* very very simple HTML lexer *)
 rule token = parse
-  | [' ' '\t']* { update lexbuf; token lexbuf }
-  | '\n'        { newline lexbuf; token lexbuf }
-  | '{'         { debug "{"; update lexbuf; OPEN  }
-  | '}'         { debug "}"; CLOSE }
-  | '('         { debug "("; LEFT }
-  | ')'         { debug ")"; RIGHT }
-  | ','         { debug ","; update lexbuf; COMMA }
-  | ';'         { debug ";"; update lexbuf; SEMI }
-  | '$'         { debug "$*$"; update lexbuf; DOLLAR (dollar lexbuf) }
-  | '"'         { debug "\"*\""; update lexbuf; STRING (Printf.sprintf "\"%s\"" (dquote lexbuf)) }
-  | '\''        { debug "\'"; update lexbuf; STRING (Printf.sprintf "\"%s\"" (quote lexbuf)) }
-  | "/*"        { comments lexbuf; token lexbuf }
-  | eof         { debug "EOF"; update lexbuf; EOF }
-  | all*  as x  { debug "%s" x; update lexbuf;
-                  if x.[String.length x - 1] = ':' then
-                    PROP (String.sub x 0 (String.length x - 1))
-                  else
-                    STRING x }
+  | [' ' '\t' '\r']* { update lexbuf; token lexbuf }
+  | '\n'             { newline lexbuf; token lexbuf }
+  | '{'              { debug "{"; update lexbuf; OPEN  }
+  | '}'              { debug "}"; CLOSE }
+  | '('              { debug "("; LEFT }
+  | ')'              { debug ")"; RIGHT }
+  | ','              { debug ","; update lexbuf; COMMA }
+  | ';'              { debug ";"; update lexbuf; SEMI }
+  | '$'              { debug "$*$"; update lexbuf; DOLLAR (dollar lexbuf) }
+  | '"'              { debug "\"*\""; update lexbuf; STRING (Printf.sprintf "\"%s\"" (dquote lexbuf)) }
+  | '\''             { debug "\'"; update lexbuf; STRING (Printf.sprintf "\"%s\"" (quote lexbuf)) }
+  | '='              { debug "="; EQ }
+  | "/*"             { comments lexbuf; token lexbuf }
+  | eof              { debug "EOF"; update lexbuf; EOF }
+  | all*  as x       { debug "%s" x; update lexbuf;
+                       if x.[String.length x - 1] = ':' then
+                         PROP (String.sub x 0 (String.length x - 1))
+                       else
+                         STRING x }
 
 and dollar = parse
-  | ([^ '$']* as str) '$' { update lexbuf; str }
+  | ([^ '$']* as str) '$' { update lexbuf; Printf.eprintf "[LEXER] %s\n" str; str }
  
 and dquote = parse
   | ([^ '"']* as str) '"' { update lexbuf; str }

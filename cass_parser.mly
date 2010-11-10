@@ -33,9 +33,10 @@
       Printf.kprintf (fun s -> ()) fmt
 %}
 
-%token COMMA SEMI OPEN CLOSE EOF LEFT RIGHT
+%token COMMA SEMI OPEN CLOSE EOF LEFT RIGHT EQ
 %token <string> STRING DOLLAR PROP
 
+%left EQ
 %left COMMA
 %left SEMI
 %left OPEN CLOSE
@@ -50,10 +51,17 @@
 
 %%
 
+ arg:
+   | one EQ one          { debug "EQ";  Seq($1, Seq(String "=", $3)) }
+   | one LEFT args RIGHT { debug "FUN"; Fun($1, $3) }
+   | one arg             { debug "SEQ"; Seq($1, $2) }
+   | one                 { $1 }
+;
+
  args:
-   | one COMMA args { Comma ($1, $3) }
-   | one            { $1 }
- ;
+   | arg COMMA args { Comma($1, $3) }
+   | arg            { $1 }
+;
 
  one:
    | STRING                 { debug "STRING(%s)" $1; String $1 }
@@ -76,7 +84,7 @@
  ;
 
  rule:
-   | PROP exprs SEMI { debug "COLON"; Rule (String $1, $2) }
+   | PROP exprs SEMI { debug "RULE(%s)" $1; Rule (String $1, $2) }
    | DOLLAR SEMI     { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
@@ -86,7 +94,7 @@
  ;
 
  decl:
-   | exprs OPEN rules CLOSE  { debug "COLON"; Decl ($1, $3) }
+   | exprs OPEN rules CLOSE  { debug "DECL"; Decl ($1, $3) }
    | DOLLAR                  { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
