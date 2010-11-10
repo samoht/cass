@@ -76,7 +76,7 @@ end
 open Css
 
 (* From http://www.webdesignerwall.com/tutorials/cross-browser-css-gradient/ *)
-let gradient ~(low : t) ~(high : t) : t =
+let gradient ~low ~high =
   <:css<
     background: $low$; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=$high$, endColorstr=$low$); /* for IE */
