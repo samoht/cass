@@ -10,6 +10,7 @@ let c2 = <:css<
 body { $props$;
         font: "helvetica neue", "helvetica", "arial", sans-serif;
         $Css.gradient ~low:color1 ~high:color2$;
+        $Css.rounded$;
      }
 >>
 
