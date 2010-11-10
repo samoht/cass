@@ -57,7 +57,7 @@ rule token = parse
                          STRING x }
 
 and dollar = parse
-  | ([^ '$']* as str) '$' { update lexbuf; Printf.eprintf "[LEXER] %s\n" str; str }
+  | ([^ '$']* as str) '$' { update lexbuf; str }
  
 and dquote = parse
   | ([^ '"']* as str) '"' { update lexbuf; str }

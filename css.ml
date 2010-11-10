@@ -77,14 +77,12 @@ open Css
 
 (* From http://www.webdesignerwall.com/tutorials/cross-browser-css-gradient/ *)
 let gradient ~(low : t) ~(high : t) : t =
-  let r = <:css<
+  <:css<
     background: $low$; /* for non-css3 browsers */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=$high$, endColorstr=$low$); /* for IE */
     background: -webkit-gradient(linear, left top, left bottom, from($high$), to($low$)); /* for webkit browsers */
     background: -moz-linear-gradient(top,  $high$,  $low$); /* for firefox 3.6+ */
- >> in
-                                                               
-Printf.eprintf "[GRADIENT]: %s\n" (to_string r); r
+ >>
 
 let rounded : t =
   <:css<
