@@ -36,3 +36,5 @@ val to_string : t -> string
 val gradient : low:t -> high:t -> t
 
 val rounded: t
+
+val top_rounded : t

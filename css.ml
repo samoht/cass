@@ -94,5 +94,19 @@ let rounded : t =
     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
   >>
+
+let top_rounded : t =
+  <:css<
+    text-shadow: 0 1px 1px rgba(0,0,0,.3);
+    -webkit-border-top-left-radius: .5em;
+    -webkit-border-top-right-radius: .5em;
+    -moz-border-radius-topleft: .5em;
+    -moz-border-radius-topright: .5em;
+    border-top-left-radius: .5em;
+    border-top-right-radius: .5em;
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  >>
                                                                
 include Css
