@@ -46,3 +46,5 @@ val text_shadow : t
 
 val no_padding : t
 val reset_padding : t
+
+val interleave: string array -> t list -> t list
