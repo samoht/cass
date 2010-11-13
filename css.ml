@@ -84,29 +84,61 @@ let gradient ~low ~high =
     background: -moz-linear-gradient(top,  $high$,  $low$); /* for firefox 3.6+ */
  >>
 
-let rounded : t =
+let text_shadow =
   <:css<
-    text-shadow: 0 1px 1px rgba(0,0,0,.3);
-    -webkit-border-radius: .5em;
-    -moz-border-radius: .5em;
-    border-radius: .5em;
+    text-shadow: 0 1px 1px rgba(0,0,0,.3);  
+  >>
+
+let box_shadow =
+  <:css<
     -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
   >>
 
-let top_rounded : t =
+let rounded =
   <:css<
-    text-shadow: 0 1px 1px rgba(0,0,0,.3);
+    -webkit-border-radius: .5em;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
+  >>
+
+let top_rounded =
+  <:css<
     -webkit-border-top-left-radius: .5em;
     -webkit-border-top-right-radius: .5em;
     -moz-border-radius-topleft: .5em;
     -moz-border-radius-topright: .5em;
     border-top-left-radius: .5em;
     border-top-right-radius: .5em;
-    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-    box-shadow: 0 1px 2px rgba(0,0,0,.2);
   >>
-                                                               
+
+let bottom_rounded =
+  <:css<
+    -webkit-border-bottom-left-radius: .5em;
+    -webkit-border-bottom-right-radius: .5em;
+    -moz-border-radius-bottomleft: .5em;
+    -moz-border-radius-bottomright: .5em;
+    border-bottom-left-radius: .5em;
+    border-bottom-right-radius: .5em;
+  >>
+
+let no_padding =
+  <:css<
+    margin: 0;
+    padding: 0;
+  >>
+
+let reset_padding =
+  <:css<
+    html, body, div,
+    h1, h2, h3, h4, h5, h6,
+    ul, ol, dl, li, dt, dd, p,
+    blockquote, pre, form, fieldset,
+    table, th, td { 
+      margin: 0; 
+      padding: 0; 
+   }
+  >>
+
 include Css

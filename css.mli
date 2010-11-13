@@ -33,8 +33,16 @@ end
 
 val to_string : t -> string
 
+(** {2 CSS library} *)
+
 val gradient : low:t -> high:t -> t
 
+val top_rounded : t
+val bottom_rounded : t
 val rounded: t
 
-val top_rounded : t
+val box_shadow : t
+val text_shadow : t
+
+val no_padding : t
+val reset_padding : t
