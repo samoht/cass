@@ -14,22 +14,25 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
+(** Single element *)
+type elt =
+  | Str of string
+  | Fun of string * expr list
+
+(** Expression: `.body a:hover`. No commas here. *)
+and expr = elt list
+
+(** Property: `background-color: blue, red;` *)
+type prop = string * expr list
+
+(** Declarations: `contents, header { color: white; }` *)
+type decl = expr list * prop list
+
+(** The type of CSS fragment *)
 type t =
-  | String of string
-  | Decl of t * t
-  | Rule of t * t
-  | Fun of t * t
-  | Comma of t * t
-  | Seq of t * t
-  | Nil
-
-module Seq : sig
-  val t_of_list : t list -> t
-end
-
-module Comma : sig
-  val t_of_list : t list -> t
-end
+  | Props of prop list
+  | Decls of decl list
+  | Exprs of expr list
 
 val to_string : t -> string
 
@@ -47,4 +50,3 @@ val text_shadow : t
 val no_padding : t
 val reset_padding : t
 
-val interleave: string array -> t list -> t list

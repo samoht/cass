@@ -51,65 +51,42 @@
 
 %%
 
- arg:
-   | one EQ one          { debug "EQ";  Seq($1, Seq(String "=", $3)) }
-   | one LEFT args RIGHT { debug "FUN"; Fun($1, $3) }
-   | one arg             { debug "SEQ"; Seq($1, $2) }
-   | one                 { $1 }
+ elt:
+   | STRING EQ STRING        { debug "EQ";  ESeq(String $1, ESeq(String "=", String $3)) }
+   | STRING EQ DOLLAR        { debug "EQ";  ESeq(String $1, ESeq(String "=", Ant (Cass_location.get (), $3))) }
+   | STRING LEFT exprs RIGHT { debug "FUN"; Fun(String $1, $3) }
+   | STRING                  { debug "STRING(%s)" $1; String $1 }
+   | DOLLAR                  { debug "EDOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
 ;
-
- args:
-   | arg COMMA args { Comma($1, $3) }
-   | arg            { $1 }
-;
-
- one:
-   | STRING                 { debug "STRING(%s)" $1; String $1 }
-   | DOLLAR                 { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
- ;
 
  expr:
-   | one LEFT args RIGHT { debug "FUN"; Fun ($1,$3) }
-   | one                 { $1 }
- ;
-
- expr0:
-   | expr expr0 { Seq ($1, $2) }
-   | expr       { $1 }
- ;
+   | elt expr { debug "ESEQ"; ESeq ($1, $2) }
+   | elt      { debug "ELT"; $1 }
+;
 
  exprs:
-   | expr0 COMMA exprs { debug "COMMA"; Comma ($1, $3) }
-   | expr0             { $1 }
+   | expr COMMA exprs { debug "COMMA"; Comma ($1, $3) }
+   | expr             { debug "ELTS"; $1 }
  ;
 
- rule:
-   | PROP exprs SEMI { debug "RULE(%s)" $1; Rule (String $1, $2) }
-   | DOLLAR SEMI     { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+ prop:
+   | PROP exprs SEMI         { debug "PROP(%s)" $1; Rule (String $1, $2) }
+   | DOLLAR SEMI             { debug "RDOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
+   | exprs OPEN props CLOSE  { debug "DECL"; Decl ($1, $3) }
+   | DOLLAR                  { debug "DDOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
  ;
 
- rules:
-   | rule rules         { debug "SEMI"; Seq($1, $2) }
-   | rule               { $1 }
- ;
-
- decl:
-   | exprs OPEN rules CLOSE  { debug "DECL"; Decl ($1, $3) }
-   | DOLLAR                  { debug "DOLLAR(%s)" $1; Ant (Cass_location.get (), $1) }
- ;
-
- decls:
-   | decl decls { debug "SEQ"; Seq ($1, $2) }
-   | decl       { $1 }
+ props:
+   | prop props { debug "RSEQ"; RSeq ($1, $2) }
+   | prop       { debug "PROP"; $1 }
  ;
 
  all:
-   | decls { $1 }
-   | rules { $1 }
    | exprs { $1 }
+   | props { $1 }
  ;
 
  main:
-   | all EOF { debug "DECL"; newline (); $1 }
+   | all EOF { debug "DECL\n"; newline (); $1 }
  ;
 

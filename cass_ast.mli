@@ -16,15 +16,16 @@
 
 open Camlp4.PreCast
 
+(** Intermediate type for CSS fragments. Produced by the parser and consumed by the lifter *)
 type t =
   | String of string
   | Decl of t * t
   | Rule of t * t
   | Fun of t * t
   | Comma of t * t
-  | Seq of t * t
+  | ESeq of t * t (** sequence of elements *)
+  | RSeq of t * t (** sequence of rules and declarations *)
   | Nil
-
   | Ant of Loc.t * string
 
 val meta_t : Ast.loc -> t -> Ast.expr

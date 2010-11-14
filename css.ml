@@ -15,65 +15,60 @@
  *)
 
 module Css = struct
+  type elt =
+    | Str of string
+    | Fun of string * expr list
+
+  and expr = elt list
+
+  type prop = string * expr list
+
+  type decl = expr list * prop list
+
   type t =
-    | String of string
-    | Decl of t * t
-    | Rule of t * t
-    | Fun of t * t
-    | Comma of t * t
-    | Seq of t * t
-    | Nil
+    | Props of prop list
+    | Decls of decl list
+    | Exprs of expr list
 
-  module Comma = struct
-    let rec t_of_list = function
-      | [] -> Nil
-      | [e] -> e
-      | e::es -> Comma (e, t_of_list es)
-
-    let rec list_of_t x acc =
-      match x with
-        | Nil -> acc
-        | Comma (e1, e2) -> list_of_t e1 (list_of_t e2 acc)
-        | e -> e :: acc
-  end
-
-  module Seq = struct
-    let rec t_of_list = function
-      | [] -> Nil
-      | [e] -> e
-      | e::es -> Seq (e, t_of_list es)
-
-    let rec list_of_t x acc =
-      match x with
-        | Nil -> acc
-        | Seq (e1, e2) -> list_of_t e1 (list_of_t e2 acc)
-        | e -> e :: acc
-  end
-
-  open Printf
   open Format
 
-  (* XXX: fix the formatter *)
-  let rec t ppf = function
-    | String s       -> fprintf ppf "%s" s
-    | Decl (t1, t2)  -> fprintf ppf "%a {\n%a}\n" t t1 t t2
-    | Rule (t1, t2)  -> fprintf ppf "\t%a: %a;\n" t t1 t t2
-    | Fun (t1, t2)   -> fprintf ppf "%a(%a)" t t1 t t2
+  let rec elt ppf (e : elt) = match e with
+    | Str s      -> fprintf ppf "%s" s
+    | Fun (s,el) -> fprintf ppf "%s(%a)" s exprs el
 
-    | Comma (t1, Nil) -> t ppf t1
-    | Comma (t1, t2)  -> fprintf ppf "%a, %a" t t1 t t2
+  and expr ppf (e : expr) = match e with
+    | []   -> ()
+    | [h]  -> fprintf ppf "%a" elt h
+    | h::t -> fprintf ppf "%a %a" elt h expr t
 
-    | Seq (t1, Nil)   -> t ppf t1
-    | Seq (t1, t2)    -> fprintf ppf "%a %a" t t1 t t2
+  and exprs ppf (el : expr list) = match el with
+    | []   -> ()
+    | [h]  -> fprintf ppf "%a" expr h
+    | h::t -> fprintf ppf "%a, %a" expr h exprs t
 
-    | Nil -> ()
+  let prop ppf (n, el) =
+    fprintf ppf "\t%s: %a;" n exprs el
 
-  let to_string t1 =
-    t str_formatter t1;
+  let rec props ppf (pl : prop list) = match pl with
+    | []   -> ()
+    | h::t -> fprintf ppf "%a\n%a" prop h props t
+
+  let decl ppf (sl, pl) =
+    fprintf ppf "%a {\n%a}\n" exprs sl props pl
+
+  let rec decls ppf (dl : decl list) = match dl with
+    | []   -> ()
+    | h::t -> fprintf ppf "%a\n%a" decl h decls t
+
+  let t ppf (x : t) = match x with
+    | Props pl -> props ppf pl
+    | Decls dl -> decls ppf dl
+    | Exprs el -> exprs ppf el
+
+  let to_string elt =
+    t str_formatter elt;
     flush_str_formatter ()
 end
-
-open Css
 
 (* From http://www.webdesignerwall.com/tutorials/cross-browser-css-gradient/ *)
 let gradient ~low ~high =

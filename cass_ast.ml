@@ -16,24 +16,79 @@
 
 open Camlp4.PreCast (* for Ast refs in generated code *)
 
+(* The raw CSS fragments (after the parsing / before the lifting) *)
 type t =
   | String of string
   | Decl of t * t
   | Rule of t * t
   | Fun of t * t
   | Comma of t * t
-  | Seq of t * t
+  | ESeq of t * t (* sequence of elements *)
+  | RSeq of t * t (* sequence of rules/declarations *)
   | Nil
-
   | Ant of Loc.t * string
 
-let rec meta_t _loc = function
-  | String s    -> <:expr< Css.String $`str:s$ >>
-  | Decl (a,b)  -> <:expr< Css.Decl ($meta_t _loc a$, $meta_t _loc b$) >>
-  | Rule (a,b)  -> <:expr< Css.Rule ($meta_t _loc a$, $meta_t _loc b$) >>
-  | Fun (a,b)   -> <:expr< Css.Fun ($meta_t _loc a$, $meta_t _loc b$) >>
-  | Comma (a,b) -> <:expr< Css.Comma ($meta_t _loc a$, $meta_t _loc b$) >>
-  | Seq (a,b)   -> <:expr< Css.Seq ($meta_t _loc a$, $meta_t _loc b$) >> 
-  | Nil         -> <:expr< Css.Nil >>
+let get_expr _loc m =
+  match m with
+    | <:expr< Css.Exprs [ $e$ ] >> -> <:expr< $e$ >>
+    | m -> <:expr< match $m$ with [ Css.Exprs [ e ] -> e | _ -> failwith "elt" ] >>
 
-  | Ant (l, str) -> Ast.ExAnt (l, str)
+let get_exprs _loc m =
+  match m with
+    | <:expr< Css.Exprs $e$ >> -> <:expr< $e$ >>
+    | m -> <:expr< match $m$ with [ Css.Exprs e -> e | _ -> failwith "elts" ] >>
+
+let get_props _loc m =
+  match m with
+    | <:expr< Css.Props $e$ >> -> <:expr< $e$ >>
+    | m -> <:expr< match $m$ with [ Css.Props p -> p | _ -> failwith "props" ] >>
+
+let get_decls _loc m =
+  match m with
+    | <:expr< Css.Decls $e$ >> -> <:expr< $e$ >>
+    | m -> <:expr< match $m$ with [ Css.Decls d -> d | _ -> failwith "decls" ] >>
+
+let get_string _loc m =
+  match m with
+    | <:expr< Css.Exprs [ [Css.Str $e$] ] >> -> <:expr< $e$ >>
+    | m -> <:expr< match $m$ with [ Css.Exprs [ [ Css.Str s ] ] -> s | _ -> failwith "string" ] >>
+
+let rec meta_t _loc = function
+  | String s ->
+    <:expr< Css.Exprs [[Css.Str $`str:s$]] >>
+
+  | Decl (a,b) ->
+    let elts  = get_exprs _loc (meta_t _loc a) in
+    let props = get_props _loc (meta_t _loc b) in
+    <:expr< Css.Decls [ ($elts$, $props$) ] >>
+
+  | Rule (a,b) ->
+    let name  = get_string _loc (meta_t _loc a) in
+    let props = get_exprs _loc (meta_t _loc b) in
+    <:expr< Css.Props [ ($name$, $props$) ] >>
+
+  | Fun (a,b) ->
+    let name = get_string _loc (meta_t _loc a) in
+    let args = get_exprs _loc (meta_t _loc a) in
+    <:expr< Css.Exprs [[Css.Fun ($name$, $args$) ]] >>
+
+  | Comma (a,b) ->
+    let e1 = get_exprs _loc (meta_t _loc a) in
+    let e2 = get_exprs _loc (meta_t _loc b) in
+    <:expr< Css.Exprs ($e1$ @ $e2$) >>
+
+  | ESeq (a,b) ->
+    let e1 = get_expr _loc (meta_t _loc a) in
+    let e2 = get_expr _loc (meta_t _loc b) in
+    <:expr< Css.Exprs [ ($e1$ @ $e2$) ] >>
+
+  | RSeq (a,b) ->
+    let e1 = get_props _loc (meta_t _loc a) in
+    let e2 = get_props _loc (meta_t _loc b) in
+    <:expr< Css.Props ($e1$ @ $e2$) >>
+
+  | Nil ->
+    <:expr< Css.Exprs [[]] >>
+
+  | Ant (l, str) ->
+    Ast.ExAnt (l, str)

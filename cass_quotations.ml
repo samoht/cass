@@ -40,12 +40,18 @@ object
           let n, c = destruct_aq s in
           let e = AQ.parse_expr _loc c in
           begin match n with
-            | "int" -> <:expr< Css.Number (float_of_int $e$) >> (* e is an int *)
-            | "flo" -> <:expr< Css.Numner $e$ >> (* e is a float *)
-            | "str" -> <:expr< Css.String $e$ >> (* e is a string *)
-            | "list" -> <:expr< Css.Seq.t_of_list $e$ >> 
-            | "alist" -> <:expr< Css.Semi.t_of_list (List.map (fun (str,elt) -> Css.Colon (str, elt)) $e$) >> 
-            | _ -> e
+            | "expr" ->
+              <:expr<
+                Css.Exprs [List.flatten (List.map 
+                                           (fun e -> match e with [
+                                             Css.Exprs [e] -> e
+                                           | _ -> raise Parsing.Parse_error]) $e$)]
+              >> 
+            | "prop" -> <:expr< Css.Props $e$ >>
+            | "" -> e
+            | t ->
+              Printf.eprintf "[ERROR] \"%s\" is not a valid tag. Valid tags are [expr|prop]\n" t;
+              Loc.raise _loc Parsing.Parse_error
           end
       | e -> super#expr e
 end

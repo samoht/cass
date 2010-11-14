@@ -50,11 +50,11 @@ rule token = parse
   | '='              { debug "="; EQ }
   | "/*"             { comments lexbuf; token lexbuf }
   | eof              { debug "EOF"; update lexbuf; EOF }
-  | all*  as x       { debug "%s" x; update lexbuf;
+  | all*  as x       { update lexbuf;
                        if x.[String.length x - 1] = ':' then
-                         PROP (String.sub x 0 (String.length x - 1))
+                         (debug "P%s" x; PROP (String.sub x 0 (String.length x - 1)))
                        else
-                         STRING x }
+                         (debug "%s" x; STRING x) }
 
 and dollar = parse
   | ([^ '$']* as str) '$' { update lexbuf; str }
