@@ -29,9 +29,10 @@ test:
 	ocamlbuild -pp "camlp4o $(INCLS) cass.cma" test.byte --
 
 .PHONY: text_exp
-test_exp: test.ml
+test_exp: test.ml $(BFILES)
 	camlp4of $(INCLS) _build/cass.cma test.ml -printer o > test_exp.ml
-	ocamlc -annot -I _build/ css.cmo test_exp.ml -o test_exp
+	ocamlc -g -annot -I _build/ css.cmo test_exp.ml -o test_exp
+	./test_exp
 
 debug: all
 	camlp4of _build/cass.cma test.ml

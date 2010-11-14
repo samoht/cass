@@ -36,13 +36,21 @@ type t =
 
 val to_string : t -> string
 
+(** {2 Getters} *)
+
+val expr : t -> expr
+val exprs : t -> expr list
+val decls : t -> decl list
+val props : t -> prop list
+val string : t -> string
+
 (** {2 CSS library} *)
 
 val gradient : low:t -> high:t -> t
 
 val top_rounded : t
 val bottom_rounded : t
-val rounded: t
+val rounded : t
 
 val box_shadow : t
 val text_shadow : t

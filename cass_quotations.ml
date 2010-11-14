@@ -40,13 +40,7 @@ object
           let n, c = destruct_aq s in
           let e = AQ.parse_expr _loc c in
           begin match n with
-            | "expr" ->
-              <:expr<
-                Css.Exprs [List.flatten (List.map 
-                                           (fun e -> match e with [
-                                             Css.Exprs [e] -> e
-                                           | _ -> raise Parsing.Parse_error]) $e$)]
-              >> 
+            | "expr" -> <:expr< Css.Exprs [List.flatten (List.map Css.expr $e$)] >> 
             | "prop" -> <:expr< Css.Props $e$ >>
             | "" -> e
             | t ->
@@ -56,20 +50,19 @@ object
       | e -> super#expr e
 end
 
-let parse_quot_string fn loc s =
-  Cass_location.set loc;
+let parse_quot_string fn _loc s =
+  Cass_location.set _loc;
   let res = fn Cass_lexer.token (Lexing.from_string s) in
-  Cass_location.set Loc.ghost;
   res
 
-let expand_expr fn loc _ s =
-  let ast = parse_quot_string fn loc s in
-  let meta_ast = Cass_ast.meta_t loc ast in
+let expand_expr fn _loc _ s =
+  let ast = parse_quot_string fn _loc s in
+  let meta_ast = Cass_ast.meta_t _loc ast in
   aq_expander#expr meta_ast
 
-let expand_str_item fn loc _ s =
-  let exp_ast = expand_expr fn loc None s in
-  <:str_item@loc< $exp:exp_ast$ >>
+let expand_str_item fn _loc _ s =
+  let exp_ast = expand_expr fn _loc None s in
+  <:str_item< $exp:exp_ast$ >>
 
 ;;
 

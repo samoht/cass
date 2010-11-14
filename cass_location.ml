@@ -18,9 +18,11 @@ open Camlp4.PreCast
 
 let current = ref Loc.ghost
 
-let set l = current := l
+let set l =
+  current := l
 
-let get () = !current
+let get () =
+  !current
 
 let shift n =
   current := Loc.shift n !current

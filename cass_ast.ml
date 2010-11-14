@@ -31,27 +31,27 @@ type t =
 let get_expr _loc m =
   match m with
     | <:expr< Css.Exprs [ $e$ ] >> -> <:expr< $e$ >>
-    | m -> <:expr< match $m$ with [ Css.Exprs [ e ] -> e | _ -> failwith "elt" ] >>
+    | m -> <:expr< Css.expr $m$ >>
 
 let get_exprs _loc m =
   match m with
     | <:expr< Css.Exprs $e$ >> -> <:expr< $e$ >>
-    | m -> <:expr< match $m$ with [ Css.Exprs e -> e | _ -> failwith "elts" ] >>
+    | m -> <:expr< Css.exprs $m$ >>
 
 let get_props _loc m =
   match m with
     | <:expr< Css.Props $e$ >> -> <:expr< $e$ >>
-    | m -> <:expr< match $m$ with [ Css.Props p -> p | _ -> failwith "props" ] >>
+    | m -> <:expr< Css.props $m$ >>
 
 let get_decls _loc m =
   match m with
     | <:expr< Css.Decls $e$ >> -> <:expr< $e$ >>
-    | m -> <:expr< match $m$ with [ Css.Decls d -> d | _ -> failwith "decls" ] >>
+    | m -> <:expr< Css.decls $m$ >>
 
 let get_string _loc m =
   match m with
     | <:expr< Css.Exprs [ [Css.Str $e$] ] >> -> <:expr< $e$ >>
-    | m -> <:expr< match $m$ with [ Css.Exprs [ [ Css.Str s ] ] -> s | _ -> failwith "string" ] >>
+    | m -> <:expr< Css.string $m$ >>
 
 let rec meta_t _loc = function
   | String s ->
