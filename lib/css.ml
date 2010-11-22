@@ -21,22 +21,17 @@ module Css = struct
 
   and expr = elt list
 
-  type prop = string * expr list
-
-  type decl = expr list * prop list
+  type prop_decl =
+    | Prop of string * expr list
+    | Decl of expr list * prop_decl list
 
   type t =
-    | Props of prop list
-    | Decls of decl list
+    | Props of prop_decl list
     | Exprs of expr list
 
   let props = function
     | Props p -> p
     | _ -> raise Parsing.Parse_error 
-
-  let decls = function
-    | Decls d -> d
-    | _ -> raise Parsing.Parse_error
 
   let exprs = function
     | Exprs e -> e
@@ -68,23 +63,16 @@ module Css = struct
       | [h]  -> fprintf ppf "%a" expr h
       | h::t -> fprintf ppf "%a, %a" expr h exprs t
 
-    let prop ppf (n, el) =
-      fprintf ppf "\t%s: %a;" n exprs el
+    let rec prop_decl ppf = function
+      | Decl (el, pl) -> fprintf ppf "%a {\n%a\n}" exprs el prop_decls pl
+      | Prop (n, el)  -> fprintf ppf "\t%s: %a;" n exprs el
 
-    let rec props ppf (pl : prop list) = match pl with
+    and prop_decls ppf = function
       | []   -> ()
-      | h::t -> fprintf ppf "%a\n%a" prop h props t
-
-    let decl ppf (sl, pl) =
-      fprintf ppf "%a {\n%a}\n" exprs sl props pl
-
-    let rec decls ppf (dl : decl list) = match dl with
-      | []   -> ()
-      | h::t -> fprintf ppf "%a\n%a" decl h decls t
+      | h::t -> fprintf ppf "%a\n%a" prop_decl h prop_decls t
 
     let t ppf (x : t) = match x with
-      | Props pl -> props ppf pl
-      | Decls dl -> decls ppf dl
+      | Props pl -> prop_decls ppf pl
       | Exprs el -> exprs ppf el
 
   end
@@ -93,6 +81,46 @@ module Css = struct
     Output.t Format.str_formatter t;
     Format.flush_str_formatter ()
 
+  let is_prop = function
+    | Prop _ -> true
+    | _      -> false
+
+  let concat_paths p1 p2 = match p1, p2 with
+    | [], [] -> []
+    | [p],[]
+    | [],[p] -> [p]
+    | p1,p2  -> List.map (fun e1 -> List.flatten (List.map (fun e2 -> e1 @ e2) p1)) p2
+
+  let shift p = function
+    | [ Decl (path, body) ] -> Decl (concat_paths p path, body)
+    | props                 -> Decl (p, props)
+
+  (* split a root declaration body into a list of prop sequence or decl *)
+  let split ps =
+    let rec aux current accu = function
+    | []               -> List.rev (List.rev current :: accu)
+    | (Decl _ as d) :: t -> aux [] ([d] :: List.rev current :: accu) t
+    | (Prop _ as p) :: t -> aux (p :: current) accu t in
+    List.filter ((<>) []) (aux [] [] ps)
+
+  (* transform a fragment with nested declarations into
+     an equivalent fragment with only root declarations *)
+  let unroll t =
+    let rec aux accu = function
+      | Decl (a,b) ->
+        if List.for_all is_prop b then
+          (* no nested declarations *)
+          Decl (a, b) :: accu
+        else begin
+          (* split/shit/unroll the nested declarations *)
+          let splits = split b in
+          let shifts = List.map (shift a) splits in
+          List.fold_left aux accu shifts
+        end
+      | x -> x :: accu in
+    match t with
+      | Props pl -> Props (List.rev (List.fold_left aux [] pl))
+      | Exprs er -> assert false
 end
 
 (* From http://www.webdesignerwall.com/tutorials/cross-browser-css-gradient/ *)

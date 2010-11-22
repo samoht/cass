@@ -43,11 +43,6 @@ let get_props _loc m =
     | <:expr< Css.Props $e$ >> -> <:expr< $e$ >>
     | m -> <:expr< Css.props $m$ >>
 
-let get_decls _loc m =
-  match m with
-    | <:expr< Css.Decls $e$ >> -> <:expr< $e$ >>
-    | m -> <:expr< Css.decls $m$ >>
-
 let get_string _loc m =
   match m with
     | <:expr< Css.Exprs [ [Css.Str $e$] ] >> -> <:expr< $e$ >>
@@ -60,12 +55,12 @@ let rec meta_t _loc = function
   | Decl (a,b) ->
     let elts  = get_exprs _loc (meta_t _loc a) in
     let props = get_props _loc (meta_t _loc b) in
-    <:expr< Css.Decls [ ($elts$, $props$) ] >>
+    <:expr< Css.Props [ Css.Decl ($elts$, $props$) ] >>
 
   | Rule (a,b) ->
     let name  = get_string _loc (meta_t _loc a) in
     let props = get_exprs _loc (meta_t _loc b) in
-    <:expr< Css.Props [ ($name$, $props$) ] >>
+    <:expr< Css.Props [ Css.Prop ($name$, $props$) ] >>
 
   | Fun (a,b) ->
     let name = get_string _loc (meta_t _loc a) in
@@ -92,3 +87,10 @@ let rec meta_t _loc = function
 
   | Ant (l, str) ->
     Ast.ExAnt (l, str)
+
+let meta_t _loc t =
+  let m = meta_t _loc t in
+  match m with
+    | <:expr< Css.Exprs $_$ >> -> m
+    | t -> <:expr< Css.unroll $m$ >>
+

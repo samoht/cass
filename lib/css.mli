@@ -22,16 +22,18 @@ type elt =
 (** Expression: `.body a:hover`. No commas here. *)
 and expr = elt list
 
-(** Property: `background-color: blue, red;` *)
-type prop = string * expr list
+(** We allow nested declarations *)
+type prop_decl =
 
-(** Declarations: `contents, header { color: white; }` *)
-type decl = expr list * prop list
+  (** Property: `background-color: blue, red;` *)
+  | Prop of string * expr list
+
+  (** Declarations: `contents, header { color: white; }` *)
+  | Decl of expr list * prop_decl list
 
 (** The type of CSS fragment *)
 type t =
-  | Props of prop list
-  | Decls of decl list
+  | Props of prop_decl list
   | Exprs of expr list
 
 val to_string : t -> string
@@ -40,9 +42,14 @@ val to_string : t -> string
 
 val expr : t -> expr
 val exprs : t -> expr list
-val decls : t -> decl list
-val props : t -> prop list
+val props : t -> prop_decl list
 val string : t -> string
+
+(** {3 Helpers} *)
+
+(** transform a fragment with nested declarations into
+    an equivalent fragment with only root declarations *)
+val unroll : t -> t
 
 (** {2 CSS library} *)
 
