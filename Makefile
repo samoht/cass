@@ -1,39 +1,56 @@
-FILES=\
-cass.cmxa cass.cma \
-cass_ast.mli cass_ast.cmi cass_ast.cmx \
-cass_parser.mli cass_parser.cmi cass_parser.cmx \
-cass_printer.mli cass_printer.cmi cass_printer.cmx \
-cass_quotations.cmi cass_quotations.cmx \
-cass_top.cmo \
-css.cmx css.cmo css.cmi
+NAME      = cass
 
-BFILES=$(addprefix _build/,$(FILES))
+PA_FILES  = cass_ast cass_lexer cass_parser cass_printer cass_quotations
+LIB_FILES = css
 
-INCLS = $(shell ocamlfind query dyntype.syntax -predicates syntax,preprocessor -r -format "-I %d %a") \
+INCLS = \
+    $(shell ocamlfind query dyntype.syntax -predicates syntax,preprocessor -r -format "-I %d %a") \
+    $(shell ocamlfind query xmlm -predicates byte -r -format "-I %d %a") \
+    $(shell ocamlfind query str -predicates byte -r -format "-I %d %a") \
+
+
+
+##########################################################
+NAME_FILES = _build/pa_lib/pa_$(NAME).cmxa \
+             _build/pa_lib/pa_$(NAME).cma \
+             _build/lib/$(NAME).cma \
+             _build/lib/$(NAME).cmxa
+
+_PA_FILES  = $(addprefix _build/pa_lib/,$(PA_FILES))
+__PA_FILES = $(addsuffix .cmi,$(_PA_FILES)) \
+             $(addsuffix .cmo,$(_PA_FILES)) \
+             $(addsuffix .cmx,$(_PA_FILES))
+
+_LIB_FILES  = $(addprefix _build/lib/,$(LIB_FILES))
+__LIB_FILES = $(addsuffix .cmi,$(_LIB_FILES)) \
+              $(addsuffix .cmo,$(_LIB_FILES)) \
+              $(addsuffix .cmx,$(_LIB_FILES))
+
+FILES = $(NAME_FILES) $(__PA_FILES) $(__LIB_FILES)
 
 all:
-	ocamlbuild cass.cma cass_top.cmo cass.cmxa
-	ocamlbuild -pp "camlp4o $(INCLS) cass.cma" css.cmo css.cmx
+	ocamlbuild pa_$(NAME).cma pa_$(NAME).cmxa
+	ocamlbuild -pp "camlp4o $(INCLS) pa_lib/pa_$(NAME).cma" $(NAME).cmxa $(NAME).cma
 
 install:
-	ocamlfind install cass META $(BFILES)
+	ocamlfind install $(NAME) META $(FILES)
 
 uninstall:
-	ocamlfind remove cass
+	ocamlfind remove $(NAME)
 
 clean:
 	ocamlbuild -clean
-	rm -rf test.exp test.cmo test.cmx test.cmi test.o
+	rm -rf test_exp.ml test.cmo test.cmx test.cmi test.o test_exp *~
 
-test:
-	ocamlbuild -pp "camlp4o $(INCLS) cass.cma" test.byte --
+.PHONY: test
+test: all
+	ocamlbuild -pp "camlp4o $(INCLS) pa_lib/pa_$(NAME).cma" test.byte --
 
-.PHONY: text_exp
-test_exp: test.ml $(BFILES)
-	camlp4of $(INCLS) _build/cass.cma test.ml -printer o > test_exp.ml
-	ocamlc -g -annot -I _build/ css.cmo test_exp.ml -o test_exp
-	./test_exp
+.PHONY: test_exp
+test_exp: lib_test/test.ml
+	camlp4orf $(INCLS) _build/pa_lib/pa_$(NAME).cma lib_test/test.ml -printer o > _build/test_exp.ml
+	ocamlc $(INCLS) -annot -I _build/lib $(NAME).cma _build/test_exp.ml -o _build/test_exp
 
 debug: all
-	camlp4of _build/cass.cma test.ml
+	camlp4orf $(INCLS) _build/pa_lib/pa_$(NAME).cma test.ml
 

@@ -1,0 +1,5 @@
+<*>: pkg_camlp4
+
+<cass_quotations.ml>: syntax_camlp4o,pkg_camlp4.quotations
+<cass_ast.ml>: syntax_camlp4o,pkg_camlp4.quotations
+<pa_cass.ml>: syntax_camlp4o,pkg_camlp4.quotations
