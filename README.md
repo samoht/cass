@@ -13,7 +13,8 @@ Define two global CSS colors:
     let color1 = <:css< black >>
     let color2 = <:css< gray >>
 
-Define the style for a button; we can a specific API to generate cross-platform complex styles.
+Define the style for a button; we use function from the CSS API to generate cross-platform
+complex styles:
 
     let button = <:css< 
        .button {
@@ -22,7 +23,7 @@ Define the style for a button; we can a specific API to generate cross-platform 
          $Css.top_rounded$;
      >>
 
-We can the use nested declarations to build modular styles :
+We can also use nested declarations to build modular styles:
 
     let container button_style header_style = <:css<
        .container {
