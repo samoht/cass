@@ -18,17 +18,17 @@ Define the style for a button; we can a specific API to generate cross-platform 
     let button = <:css< 
        .button {
          $Css.gradient ~low:color2 ~high:color1$;
-	 color: white;
-	 $Css.top_rounded$;
+         color: white;
+         $Css.top_rounded$;
      >>
 
 We can the use nested declarations to build modular styles :
 
     let container button_style header_style = <:css<
        .container {
-	   $button_style$;
-	   $header_style$;
-	   background-color: green;
+         $button_style$;
+         $header_style$;
+         background-color: green;
         }
 
     let mystyle = container button <:css< h1 { font-weight: bold; } >>
