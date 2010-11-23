@@ -1,0 +1,7 @@
+0.1.0:
+* support for nested declarations [22 Nov 2010]
+* use ocamlbuild [22 Nov 2010]
+* CSS API (text_shadow, box_shadow, reset_padding) [13 Nov 2010]
+* CSS API (top_rounded, bottom_rounded) [11 Nov 2010]
+* CSS API (rounded) [10 Nov 2010]
+* initial commit [3 Oct 2010]
