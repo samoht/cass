@@ -2,11 +2,11 @@ A CSS quotation mechanism for ocaml using camlp4.
 
 This library started as a toy-project at very good
 [CUFP tutorial](http://cufp.org/conference/sessions/2010/camlp4-and-template-haskell)
-by
 by [Jake Donham](http://www.github.com/jaked) and [Nicolas Pouillard](http://www.github.com/np).
 It is now in a working state for bigger projects.
 
-== Examples ==
+Examples
+--------
 
 Define two global CSS colors:
 
@@ -33,7 +33,8 @@ We can the use nested declarations to build modular styles :
 
     let mystyle = container button <:css< h1 { font-weight: bold; } >>
 
-== Remarks ==
+Remarks
+-------
 
 The parser is far for being perfect. For example, to write properties do not forget to add a space
 character after the colon (ie. `foo: bar`, not `foo:bar`)
