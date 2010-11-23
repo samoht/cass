@@ -1,5 +1,5 @@
 name = "cass"
-version = "0.1.0"
+version = "0.1.1"
 description = "Caml Style Sheets"
 requires = "camlp4"
 archive(byte) = "css.cmo"
