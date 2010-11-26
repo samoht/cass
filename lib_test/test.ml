@@ -11,14 +11,17 @@ let decl = <:css<
   >>
 
 let c2 = <:css<
+$decl$;
+$decl$;
 body { $props$;
         font: "helvetica neue", "helvetica", "arial", sans-serif;
         $Css.gradient ~low:color1 ~high:color2$;
         $Css.rounded$;
 
         h1 { font-weight: bold; }
-     }
-$decl$
+     };
+$decl$;
+$decl$;
 >>
 
 let nav = <:css< .nav >>

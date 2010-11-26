@@ -283,6 +283,7 @@ and prop tokens =
           let props = props tokens in
           expect CLOSE tokens;
           ef "    )\n";
+          maybe SEMI tokens;
           Decl(exprs, props)
         with e ->
           restore ~snapshot tokens;
