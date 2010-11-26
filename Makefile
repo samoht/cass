@@ -4,7 +4,6 @@ PA_FILES  = cass_ast cass_lexer cass_parser cass_printer cass_quotations
 LIB_FILES = css
 
 INCLS = \
-    $(shell ocamlfind query dyntype.syntax -predicates syntax,preprocessor -r -format "-I %d %a") \
     $(shell ocamlfind query xmlm -predicates byte -r -format "-I %d %a") \
     $(shell ocamlfind query str -predicates byte -r -format "-I %d %a") \
 
