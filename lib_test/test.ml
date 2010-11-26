@@ -6,6 +6,10 @@ let props = <:css<
   border-top: 15px solid $color2$;
 >>;;
 
+let decl = <:css<
+  foo { bar: gni; }
+  >>
+
 let c2 = <:css<
 body { $props$;
         font: "helvetica neue", "helvetica", "arial", sans-serif;
@@ -14,6 +18,7 @@ body { $props$;
 
         h1 { font-weight: bold; }
      }
+$decl$
 >>
 
 let s = Css.to_string c2
