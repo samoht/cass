@@ -21,6 +21,14 @@ body { $props$;
 $decl$
 >>
 
+let nav = <:css< .nav >>
+let nav_style = <:css<
+  $nav$ {
+    $props$;
+    margin-left: 10%;
+  }
+>>
+
 let s = Css.to_string c2
 
 let _ = Printf.printf "%s\n%!" s 
