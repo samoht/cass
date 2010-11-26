@@ -29,3 +29,5 @@ type token =
 
 
 val main: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Cass_ast.t
+
+val set_debug : bool -> unit

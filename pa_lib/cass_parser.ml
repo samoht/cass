@@ -16,10 +16,13 @@
 
 open Cass_ast
 
-let debug = true
+let debug = ref false
+
+let set_debug x =
+  debug := x
 
 let ef (fmt: ('a , unit, string, unit) format4) =
-    if debug then
+    if !debug then
       Printf.kprintf (fun s -> Printf.eprintf "%s" s) fmt
     else
       Printf.kprintf (fun s -> ()) fmt
