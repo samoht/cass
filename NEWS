@@ -1,3 +1,6 @@
+0.1.1:
+* replace the mlyacc parser by a hand-written one [26 Nov 2010]
+
 0.1.0:
 * support for nested declarations [22 Nov 2010]
 * use ocamlbuild [22 Nov 2010]
