@@ -230,7 +230,7 @@ let rec elt tokens =
         seek 2 tokens;
         let exprs = exprs tokens in
         expect RIGHT tokens;
-        ef ") ";
+        ef ") << %s >>" (Cass_printer.to_string exprs);
         Fun(String s1, exprs)
       | [STRING s; _; _ ] ->
         ef "%s " s;

@@ -64,7 +64,7 @@ let rec meta_t _loc = function
 
   | Fun (a,b) ->
     let name = get_string _loc (meta_t _loc a) in
-    let args = get_exprs _loc (meta_t _loc a) in
+    let args = get_exprs _loc (meta_t _loc b) in
     <:expr< Css.Exprs [[Css.Fun ($name$, $args$) ]] >>
 
   | Comma (a,b) ->
